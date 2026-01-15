@@ -9,8 +9,19 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      fnnas_base_version:
+        description: "Select fnnas base image version"
+        required: false
+        default: "amlogic_322"
+        type: choice
+        options:
+          - amlogic_322
+          - allwinner_317
+          - rockchip_321
+          - amlogic_300
+          - rockchip_296
       fnnas_board:
-        description: "Select device board"
+        description: "Select fnnas device board"
         required: false
         default: "all"
         type: choice
@@ -186,8 +197,15 @@ on:
           - zcube1-max
           - zk-r39a
           - zysj
+      kernel_repo:
+        description: "Set fnnas kernel repository"
+        required: false
+        default: "ophub/fnnas"
+        type: choice
+        options:
+          - ophub/fnnas
       fnnas_kernel:
-        description: "Select kernel version"
+        description: "Select fnnas kernel version"
         required: false
         default: "6.12.y"
         type: choice
@@ -198,34 +216,16 @@ on:
         required: false
         default: true
         type: boolean
-      kernel_repo:
-        description: "Set the kernel repository"
-        required: false
-        default: "ophub/fnnas"
-        type: choice
-        options:
-          - ophub/fnnas
-      fnnas_url:
-        description: "Set fnnas image file path"
-        required: false
-        default: ""
-      fnnas_base_version:
-        description: "Select the fnnas base image version"
-        required: false
-        default: "amlogic_322"
-        type: choice
-        options:
-          - amlogic_322
-          - allwinner_317
-          - rockchip_321
-          - amlogic_300
-          - rockchip_296
       fnnas_storage:
-        description: "Set fnnas image tags"
+        description: "Set fnnas image releases tags"
         required: false
         default: "fnnas_save"
+      fnnas_url:
+        description: "Set custom fnnas image address"
+        required: false
+        default: ""
       builder_name:
-        description: "Set OpenWrt builder signature."
+        description: "Set fnnas builder signature"
         required: false
         default: "ophub"
         type: choice
