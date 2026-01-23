@@ -16,8 +16,17 @@
 #
 #========================= Set default parameters ==========================
 #
-# Set root partition size limit (Unit: GiB)
-ROOT_LIMIT_GiB="16"
+# Load configuration file
+fnnas_conf="/etc/fnnas.conf"
+if [[ -f "${fnnas_conf}" ]]; then
+    source "${fnnas_conf}"
+else
+    # Set root partition size limit (Unit: GiB)
+    echo "rootfs_limit_gib=\"16\"" >"${fnnas_conf}"
+    echo "rootfs_resize=\"yes\"" >>"${fnnas_conf}"
+    rootfs_limit_gib="16"
+    rootfs_resize="yes"
+fi
 
 # Set font color
 STEPS="[\033[95m STEPS \033[0m]"
@@ -41,6 +50,9 @@ disable_service() {
         systemctl disable resize-rootfs.service >/dev/null 2>&1
         echo "Service resize-rootfs.service disabled"
     fi
+
+    # Update configuration to prevent future resizing
+    sed -i "s|^rootfs_resize=.*|rootfs_resize=\"no\"|g" "${fnnas_conf}"
 }
 
 # Check disk
@@ -89,7 +101,7 @@ expansion_partition() {
     [[ "${pt_num}" -ne "2" ]] && echo -e "${WARNING} Partition count is ${pt_num}, expected 2. Proceeding anyway..."
 
     # Convert limit to bytes
-    LIMIT_BYTES=$((ROOT_LIMIT_GiB * 1024 * 1024 * 1024))
+    LIMIT_BYTES=$((rootfs_limit_gib * 1024 * 1024 * 1024))
 
     # Get disk size in bytes
     DISK_SIZE_BYTES="$(lsblk -b -n -o SIZE -d "/dev/${DISK_NAME}")"
@@ -97,8 +109,8 @@ expansion_partition() {
 
     # Check disk size and select expansion strategy
     if [[ "${DISK_SIZE_BYTES}" -gt "${LIMIT_BYTES}" ]]; then
-        echo -e "${INFO} Strategy: Limit partition ${PART_NUM} to ${ROOT_LIMIT_GiB}GiB..."
-        printf 'Yes\n\n' | parted ---pretend-input-tty /dev/${DISK_NAME} resizepart ${PART_NUM} ${ROOT_LIMIT_GiB}GiB
+        echo -e "${INFO} Strategy: Limit partition ${PART_NUM} to ${rootfs_limit_gib}GiB..."
+        printf 'Yes\n\n' | parted ---pretend-input-tty /dev/${DISK_NAME} resizepart ${PART_NUM} ${rootfs_limit_gib}GiB
     else
         echo -e "${INFO} Strategy: Expand partition ${PART_NUM} to 100% (Full Disk)..."
         printf 'Yes\n-1\n' | parted ---pretend-input-tty /dev/${DISK_NAME} resizepart ${PART_NUM} 100%
@@ -119,13 +131,15 @@ expansion_partition() {
         [[ "${?}" -ne "0" ]] && error_msg "[ resize2fs ] operation failed."
     fi
 
-    # Do not delete files
-    echo "no" >/root/.no_rootfs_resize
     echo -e "${SUCCESS} The current partition expansion is successful."
 }
 
 # Show welcome message
 echo -e "${STEPS} Welcome to Partition Expansion Tool."
+# Check for root privileges
+[[ "$(id -u)" -ne "0" ]] && error_msg "This script must be run as root!"
+# Check if root filesystem auto-resize is disabled
+[[ "${rootfs_resize}" == "yes" ]] || exit 0
 
 do_checkdisk
 expansion_partition

@@ -181,6 +181,7 @@ sudo apt-get install -y $(cat make-fnnas/script/ubuntu2404-make-fnnas-depends)
 | -k        | Kernel     | Specify [kernel](https://github.com/ophub/fnnas/releases/tag/kernel_fnnas) name, such as `-k 6.6.12`. Connect multiple kernels with `_`, such as `-k 6.12.63_6.18.3`. |
 | -a        | AutoKernel | Sets whether to automatically adopt the latest version of the kernel in the same series. When set to `true`, it will automatically check the kernel library for a newer version of the kernel specified in `-k`, such as 6.12.63. If there is a newer version after 6.12.63, it will automatically switch to the latest version. When set to `false`, the specified version kernel will be compiled. Default value: `true` |
 | -s        | Size       | Set the size(Unit: MiB) of the system's image partitions. When setting only the `ROOTFS` partition size, you can specify a single value, for example: `-s 6144`. When setting both `BOOTFS` and `ROOTFS` partition sizes, use / to connect the two values, for example: `-s 512/6144`. The default value is `512/6144` |
+| -e        | RootfsExpand | Set the automatic expansion size (Unit: GiB) of the system root partition. Default value: `16` |
 | -n        | BuilderName | Set the Armbian system builder signature. Do not include spaces when setting the signature. Default value: `None` |
 
 - `sudo ./renas` : Use default configuration to package for `all` models of TV boxes.
@@ -191,6 +192,7 @@ sudo apt-get install -y $(cat make-fnnas/script/ubuntu2404-make-fnnas-depends)
 - `sudo ./renas -b s905x3_s905d` : Use default configuration to package all kernels for multiple models of TV boxes, use `_` to connect multiple models.
 - `sudo ./renas -k 6.12.63_6.18.3` : Use default configuration, specify multiple kernels to package for all models of TV boxes, kernel packages connected with `_`.
 - `sudo ./renas -k 6.12.63_6.18.3 -a true` : Use default configuration, specify multiple kernels to package for all models of TV boxes, kernel packages connected with `_`. Automatically upgrade to the latest kernel of the same series.
+- `sudo ./renas -b s905x3 -e 32` : Use default configuration to package for `s905x3` model of TV box, set rootfs automatic expansion size to `32` GiB.
 
 ## Use GitHub Actions for Packaging fnnas image
 
@@ -206,6 +208,7 @@ sudo apt-get install -y $(cat make-fnnas/script/ubuntu2404-make-fnnas-depends)
     fnnas_path: fnnas/*.img.xz
     fnnas_board: s905d_s905x3_s922x_s905x
     fnnas_kernel: 6.12.y
+    rootfs_expand: 16
 ```
 
 - ### GitHub Actions Packaging fnnas Image
@@ -216,10 +219,11 @@ The related parameters correspond to the `local packaging command`, please refer
 |-----------------|---------------|---------------------------------------------------------|
 | fnnas_path      | None          | Set the path of the official Arm64 original FnNAS image file. Supports using file paths in the current workflow like `fnnas/*.img.xz`, and also supports network download addresses like: `https://fnnas.com/.../fnos_arm_1.0.0_258.img.xz` |
 | fnnas_board     | all           | Set the board for packaging boxes. Function refers to `-b` |
-| kernel_repo     | ophub/fnnas  | Specify the `<owner>/<repo>` of the github.com kernel repository. Function refers to `-r` |
+| kernel_repo     | ophub/fnnas   | Specify the `<owner>/<repo>` of the github.com kernel repository. Function refers to `-r` |
 | fnnas_kernel    | 6.12.y        | Set the [version](https://github.com/ophub/fnnas/releases/tag/kernel_fnnas) of the kernel. Function refers to `-k` |
 | auto_kernel     | true          | Set whether to automatically adopt the latest version of the kernel in the same series. Function refers to `-a` |
 | fnnas_size      | 512/6144      | Set the size of the system `BOOTFS` and `ROOTFS` partitions. Function refers to `-s` |
+| rootfs_expand   | 16            | Set the automatic expansion size (Unit: GiB) of the system root partition. Function refers to `-e` |
 | builder_name    | None          | Set the FnNAS system `builder signature`. Function refers to `-n` |
 
 - ### Explanation of Parameters for Local FnNAS Kernel Build

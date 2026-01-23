@@ -61,6 +61,7 @@ platform_files="${resource_path}/fnnas-files/platform-files"
 different_files="${resource_path}/fnnas-files/different-files"
 firmware_path="${common_files}/usr/lib/firmware"
 model_conf="${common_files}/etc/model_database.conf"
+fnnas_conf="${common_files}/etc/fnnas.conf"
 tmp_outpath="${tmp_path}/tmp_out"
 tmp_fnnas="${tmp_path}/tmp_fnnas"
 tmp_build="${tmp_path}/tmp_build"
@@ -102,6 +103,8 @@ make_board="all"
 # Set fnnas firmware size (Unit: MiB, boot_mb >= 512, root_mb >= 6144)
 boot_mb="512"
 root_mb="6144"
+# Set automatic expansion size for the system root partition (Unit: GiB)
+rootfs_expand="16"
 # Set fnnas builder signature
 builder_name=""
 
@@ -166,7 +169,7 @@ init_var() {
     echo -e "${STEPS} Start Initializing Variables..."
 
     # If it is followed by [ : ], it means that the option requires a parameter value
-    local options="b:r:k:a:p:s:n:"
+    local options="b:r:k:a:e:s:n:"
     parsed_args=$(getopt -o "${options}" -- "${@}")
     [[ ${?} -ne 0 ]] && error_msg "Parameter parsing failed."
     eval set -- "${parsed_args}"
@@ -206,6 +209,14 @@ init_var() {
                 shift 2
             else
                 error_msg "Invalid -a parameter [ ${2} ]!"
+            fi
+            ;;
+        -e | --RootfsExpand)
+            if [[ -n "${2}" ]]; then
+                rootfs_expand="${2}"
+                shift 2
+            else
+                error_msg "Invalid -e parameter [ ${2} ]!"
             fi
             ;;
         -s | --Size)
@@ -938,6 +949,9 @@ refactor_rootfs() {
     echo "CONTRIBUTORS='${CONTRIBUTORS}'" >>${ophub_release_file}
     echo "BUILDER_NAME='${builder_name}'" >>${ophub_release_file}
     echo "PACKAGED_DATE='$(date +%Y-%m-%d)'" >>${ophub_release_file}
+
+    # Set rootfs size limit in fnnas.conf
+    sed -i "s|^rootfs_limit_gib=.*|rootfs_limit_gib=\"${rootfs_expand}\"|g" "${fnnas_conf}"
 
     sync && sleep 3
 }

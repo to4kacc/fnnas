@@ -32,6 +32,10 @@ inputs:
     description: "Set the rootfs size(Unit: MiB)."
     required: false
     default: ""
+  rootfs_expand:
+    description: "Set rootfs expansion size(Unit: GiB)."
+    required: false
+    default: ""
   builder_name:
     description: "Set fnnas builder signature."
     required: false
@@ -123,6 +127,7 @@ runs:
             [[ -n "${{ inputs.fnnas_kernel }}" ]] && make_command="${make_command} -k ${{ inputs.fnnas_kernel }}"
             [[ -n "${{ inputs.auto_kernel }}" ]] && make_command="${make_command} -a ${{ inputs.auto_kernel }}"
             [[ -n "${{ inputs.fnnas_size }}" ]] && make_command="${make_command} -s ${{ inputs.fnnas_size }}"
+            [[ -n "${{ inputs.rootfs_expand }}" ]] && make_command="${make_command} -e ${{ inputs.rootfs_expand }}"
             [[ -n "${{ inputs.builder_name }}" ]] && make_command="${make_command} -n ${{ inputs.builder_name }}"
             read -r -a make_args <<< "${make_command}"
             sudo ./renas "${make_args[@]}"
