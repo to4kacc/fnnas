@@ -19,7 +19,6 @@ on:
           - amlogic_470
           - amlogic_453
           - amlogic_389
-          - amlogic_338
           - allwinner_455
           - allwinner_335
           - allwinner_317
