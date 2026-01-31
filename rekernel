@@ -50,12 +50,12 @@ tmp_image="${tmp_path}/tmp_image"
 
 # Set the fnnas kernel debs files download repository from github.com
 debs_repo="https://github.com/ophub/fnnas"
-# Set the fnnas kernel dtbs version (e.g., 6.12.y)
-dtbs_version="6.12.y"
 # Installation of additional deb packages inside chroot(amlogic/allwinner/rockchip/none)
 debs_install="none"
 # By default, download and use dtbs files(true/yes)
-dtbs_install="false"
+dtbs_install="true"
+# Set kernel dtbs version(e.g., 6.12.y)
+dtbs_version="6.12.y"
 
 # Server information
 arch_info="$(uname -m)"

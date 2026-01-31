@@ -40,7 +40,7 @@ on:
           - rockchip
           - none
       dtbs_version:
-        description: "Set fnnas dtbs version"
+        description: "Set kernel dtbs version"
         required: false
         default: "6.12.y"
         type: choice
